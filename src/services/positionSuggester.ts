@@ -1,7 +1,7 @@
 // Position Suggester - Strategy selection based on hype and sentiment
 
-import { DISCLAIMER, getHypeLevel } from "@/lib/constants";
-import { HypeScore, PositionSuggestion } from "@/lib/types";
+import { DISCLAIMER } from "@/lib/constants";
+import { PositionSuggestion } from "@/lib/types";
 import { getHypeScore } from "./hypeEngine";
 
 type RiskTolerance = "conservative" | "moderate" | "aggressive";
@@ -15,8 +15,6 @@ export async function suggestPosition(
   maxCapital?: number
 ): Promise<PositionSuggestion> {
   const hype = await getHypeScore(ticker);
-
-  const level = getHypeLevel(hype.hypeScore);
   const { momentum, sentimentRatio } = hype;
 
   let strategy: string;

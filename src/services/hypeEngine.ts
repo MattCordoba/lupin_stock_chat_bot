@@ -193,7 +193,7 @@ export async function getHypeScore(
  */
 export async function getTrendingTickers(
   limit: number = 10,
-  source: string = "all"
+  _source: string = "all"
 ): Promise<TrendingTicker[]> {
   // Get trending from StockTwits
   const stocktwitsTrending = await getStockTwitsTrending(Math.min(limit * 2, 30));
