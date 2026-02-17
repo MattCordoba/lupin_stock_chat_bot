@@ -22,10 +22,6 @@ export async function POST(request: Request) {
             "Get the composite hype score (0-100) for a stock ticker, aggregated from StockTwits and news sentiment. Use this when the user asks about a specific stock's sentiment or hype level.",
           parameters: z.object({
             ticker: z.string().describe("Stock ticker symbol (e.g., NVDA, AAPL, TSLA)"),
-            timeframe: z
-              .enum(["1h", "4h", "24h", "7d"])
-              .default("24h")
-              .describe("Timeframe for sentiment analysis"),
           }),
           execute: async ({ ticker }) => {
             const score = await getHypeScore(ticker);
