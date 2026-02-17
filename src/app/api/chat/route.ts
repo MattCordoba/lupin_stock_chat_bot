@@ -6,8 +6,8 @@ export const maxDuration = 30;
 const GEMINI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 // Models to try in order of preference
+// Using correct Google AI model identifiers
 const GEMINI_MODELS = [
-  "gemini-2.5-flash",
   "gemini-2.0-flash",
   "gemini-1.5-flash",
   "gemini-1.5-pro",
@@ -54,8 +54,9 @@ function isRateLimitError(data: GeminiResponse | null, rawText?: string): boolea
 async function tryGeminiModel(
   model: string,
   requestBody: object
-): Promise<{ success: boolean; data?: GeminiResponse; responseText?: string; rateLimited?: boolean }> {
+): Promise<{ success: boolean; data?: GeminiResponse; responseText?: string; rateLimited?: boolean; error?: string }> {
   try {
+    console.log(`Trying model: ${model}`);
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -65,7 +66,9 @@ async function tryGeminiModel(
       }
     );
 
+    console.log(`Model ${model} response status: ${response.status}`);
     const rawText = await response.text();
+    console.log(`Model ${model} raw response length: ${rawText.length}`);
 
     let data: GeminiResponse;
     try {
@@ -76,7 +79,8 @@ async function tryGeminiModel(
         console.log(`Model ${model} returned HTML (likely rate limited)`);
         return { success: false, rateLimited: true };
       }
-      throw new Error("Failed to parse response");
+      console.error(`Model ${model} returned unparseable response:`, rawText.substring(0, 200));
+      return { success: false, rateLimited: false, error: "Unparseable response" };
     }
 
     // Check for rate limit
@@ -87,22 +91,22 @@ async function tryGeminiModel(
 
     // Check for other errors
     if (data.error) {
-      console.error(`Model ${model} error:`, data.error.message);
-      return { success: false, rateLimited: false };
+      console.error(`Model ${model} error:`, data.error.code, data.error.message);
+      return { success: false, rateLimited: false, error: data.error.message };
     }
 
     // Extract response text
     const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!responseText) {
-      console.log(`Model ${model} returned empty response`);
-      return { success: false, rateLimited: false };
+      console.log(`Model ${model} returned empty response, candidates:`, JSON.stringify(data.candidates));
+      return { success: false, rateLimited: false, error: "Empty response" };
     }
 
-    console.log(`Successfully got response from ${model}`);
+    console.log(`Successfully got response from ${model}, length: ${responseText.length}`);
     return { success: true, data, responseText };
   } catch (error) {
-    console.error(`Error with model ${model}:`, error);
-    return { success: false, rateLimited: false };
+    console.error(`Exception with model ${model}:`, error);
+    return { success: false, rateLimited: false, error: String(error) };
   }
 }
 
@@ -137,6 +141,7 @@ export async function POST(request: Request) {
     // Try each model in order until one succeeds
     let responseText: string | undefined;
     let allRateLimited = true;
+    let lastError: string | undefined;
 
     for (const model of GEMINI_MODELS) {
       const result = await tryGeminiModel(model, requestBody);
@@ -149,10 +154,16 @@ export async function POST(request: Request) {
       if (!result.rateLimited) {
         allRateLimited = false;
       }
+
+      if (result.error) {
+        lastError = result.error;
+      }
     }
 
     // If no model succeeded
     if (!responseText) {
+      console.error("All models failed. Last error:", lastError, "All rate limited:", allRateLimited);
+
       if (allRateLimited) {
         return new Response(
           JSON.stringify({
@@ -164,7 +175,7 @@ export async function POST(request: Request) {
       }
 
       return new Response(
-        JSON.stringify({ error: "Failed to get response from any model" }),
+        JSON.stringify({ error: `Failed to get response: ${lastError || "Unknown error"}` }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
