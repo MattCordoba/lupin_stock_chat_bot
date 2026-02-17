@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { ChatMessage } from "@/components/ChatMessage";
 
@@ -8,17 +9,15 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  isRateLimited?: boolean;
 }
 
 const quickPrompts = [
+  { label: "What's the move?", prompt: "What's the move today?" },
   { label: "What's hot?", prompt: "What are the most hyped stocks right now?" },
   {
     label: "Top pick",
     prompt: "What's your top trade suggestion today?",
-  },
-  {
-    label: "Check NVDA",
-    prompt: "What's the hype score for NVDA? Should I buy?",
   },
   {
     label: "Risk check",
@@ -65,8 +64,22 @@ export default function ChatPage() {
         }),
       });
 
+      // Check for rate limit or other errors
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        const errorData = await response.json().catch(() => ({}));
+        const isRateLimited = errorData.rateLimited || response.status === 429;
+
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: isRateLimited
+            ? ""
+            : "Sorry, I had trouble processing that. Give me a second and try again.",
+          isRateLimited,
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        setIsLoading(false);
+        return;
       }
 
       const reader = response.body?.getReader();
@@ -86,13 +99,40 @@ export default function ChatPage() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        assistantContent += chunk;
+        const chunk = decoder.decode(value, { stream: true });
+
+        // Parse the AI SDK stream format (lines starting with 0:)
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("0:")) {
+            // Extract the text content from the format 0:"text"
+            const jsonContent = line.slice(2);
+            try {
+              const text = JSON.parse(jsonContent);
+              if (typeof text === "string") {
+                assistantContent += text;
+              }
+            } catch {
+              // Not valid JSON, might be partial, skip
+            }
+          }
+        }
 
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMessage.id
               ? { ...m, content: assistantContent }
+              : m
+          )
+        );
+      }
+
+      // If we got no content after streaming, show rate limit message
+      if (!assistantContent.trim()) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessage.id
+              ? { ...m, content: "", isRateLimited: true }
               : m
           )
         );
@@ -123,6 +163,15 @@ export default function ChatPage() {
         {/* Welcome message */}
         {messages.length === 0 && (
           <div className="text-center py-12">
+            <div className="flex justify-center mb-4">
+              <Image
+                src="/joel.jpg"
+                alt="Joel"
+                width={80}
+                height={80}
+                className="w-20 h-20 rounded-full object-cover border-4 border-gold-500/50"
+              />
+            </div>
             <h1 className="text-3xl font-bold text-white mb-2">
               Chat with <span className="text-gold-400">Joel</span>
             </h1>
@@ -157,6 +206,7 @@ export default function ChatPage() {
               key={message.id}
               role={message.role}
               content={message.content}
+              isRateLimited={message.isRateLimited}
             />
           ))}
           {isLoading && messages[messages.length - 1]?.role === "user" && (

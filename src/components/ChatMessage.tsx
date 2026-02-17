@@ -1,16 +1,30 @@
 "use client";
 
+import Image from "next/image";
+
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string;
   isLoading?: boolean;
+  isRateLimited?: boolean;
 }
 
-export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
+export function ChatMessage({ role, content, isLoading, isRateLimited }: ChatMessageProps) {
   const isJoel = role === "assistant";
 
   return (
     <div className={`flex ${isJoel ? "justify-start" : "justify-end"} mb-4`}>
+      {isJoel && (
+        <div className="flex-shrink-0 mr-3">
+          <Image
+            src="/joel.jpg"
+            alt="Joel"
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full object-cover border-2 border-gold-500/50"
+          />
+        </div>
+      )}
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
           isJoel
@@ -40,6 +54,13 @@ export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
                 style={{ animationDelay: "0.4s" }}
               />
             </span>
+          ) : isRateLimited ? (
+            <div className="flex items-center gap-2 text-amber-400">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Waiting on more AI credits. Give me a moment...</span>
+            </div>
           ) : (
             content
           )}

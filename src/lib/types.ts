@@ -76,11 +76,46 @@ export interface PositionSuggestion {
     | "sell_shares"
     | "hold"
     | "watch"
-    | "no_trade";
+    | "no_trade"
+    | "buy_calls"
+    | "buy_puts"
+    | "sell_covered_calls"
+    | "sell_cash_secured_puts"
+    | "sell_position";
   rationale: string;
   confidenceLevel: "high" | "medium" | "low";
   risks: string[];
   disclaimer: string;
+  optionsDetails?: OptionsEstimate;
+}
+
+export interface OptionsEstimate {
+  direction: "bullish" | "bearish" | "neutral";
+  suggestedStrike: string; // e.g., "~$950" or "5-10% OTM"
+  suggestedExpiry: string; // e.g., "2-3 weeks out" or "mid-March"
+  premiumRange?: string; // e.g., "around $5-$8 per contract"
+  notes?: string;
+}
+
+export type PlayCategory = "best_bet" | "defensive" | "degen" | "donk";
+
+export interface DailyMoveRecommendation {
+  category: PlayCategory;
+  ticker: string;
+  hypeScore: number;
+  momentum: "accelerating" | "stable" | "decelerating";
+  bullishPercent: number;
+  strategy: string;
+  strategyType: PositionSuggestion["strategyType"];
+  rationale: string;
+  risk: string;
+  optionsDetails?: OptionsEstimate;
+}
+
+export interface DailyMovesResponse {
+  recommendations: DailyMoveRecommendation[];
+  donkSuggestion: string;
+  generatedAt: string;
 }
 
 export interface ChatMessage {

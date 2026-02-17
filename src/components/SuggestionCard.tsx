@@ -10,12 +10,17 @@ interface SuggestionCardProps {
 export function SuggestionCard({ suggestion }: SuggestionCardProps) {
   const level = getHypeLevel(suggestion.hypeScore);
 
-  const strategyBadgeColors = {
+  const strategyBadgeColors: Record<PositionSuggestion["strategyType"], string> = {
     buy_shares: "bg-green-900/50 text-green-400 border-green-700",
     sell_shares: "bg-red-900/50 text-red-400 border-red-700",
     hold: "bg-amber-900/50 text-amber-400 border-amber-700",
     watch: "bg-blue-900/50 text-blue-400 border-blue-700",
     no_trade: "bg-gray-800/50 text-gray-400 border-gray-700",
+    buy_calls: "bg-emerald-900/50 text-emerald-400 border-emerald-700",
+    buy_puts: "bg-rose-900/50 text-rose-400 border-rose-700",
+    sell_covered_calls: "bg-purple-900/50 text-purple-400 border-purple-700",
+    sell_cash_secured_puts: "bg-indigo-900/50 text-indigo-400 border-indigo-700",
+    sell_position: "bg-red-900/50 text-red-400 border-red-700",
   };
 
   const confidenceColors = {
