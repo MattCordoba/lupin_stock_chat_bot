@@ -26,8 +26,8 @@ if echo "$response" | grep -q "^0:"; then
   # Show first 100 chars of response
   preview=$(echo "$response" | head -c 100)
   echo "Response preview: ${preview}..."
-elif echo "$response" | grep -q "rateLimited"; then
-  echo "⚠ RATE LIMITED - All Gemini models exhausted quota"
+elif echo "$response" | grep -qE "rateLimited|high demand"; then
+  echo "⚠ RATE LIMITED - All Gemini models exhausted quota or high demand"
   echo "This is expected if you've made many requests today."
   echo "The fallback mechanism is working correctly."
   # Rate limiting is not a test failure - the API handled it correctly

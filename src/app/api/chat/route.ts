@@ -6,12 +6,11 @@ export const maxDuration = 30;
 const GEMINI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 // Models to try in order of preference
-// Verified available via Google AI API ListModels
-// Using 2.0-flash as primary due to higher rate limits (RPD)
+// Free tier only has quota for 2.5 models (2.0 models have 0 free tier quota)
+// Each model has separate 20 RPD limit on free tier
 const GEMINI_MODELS = [
-  "gemini-2.0-flash",
   "gemini-2.5-flash",
-  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash-lite",
 ];
 
 interface Message {
@@ -45,7 +44,8 @@ function isRateLimitError(data: GeminiResponse | null, rawText?: string): boolea
     data.error.code === 429 ||
     errorMessage.includes("quota") ||
     errorMessage.includes("RESOURCE_EXHAUSTED") ||
-    errorMessage.includes("rate limit")
+    errorMessage.includes("rate limit") ||
+    errorMessage.includes("high demand")
   );
 }
 
