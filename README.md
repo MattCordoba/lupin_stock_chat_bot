@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Joel the HypeTrader
+
+A sentiment-driven stock trading assistant by Lupin. Chat with Joel to get real-time social sentiment analysis, hype scores, and trade suggestions based on what's trending on StockTwits and financial news.
+
+## Features
+
+- **Chat with Joel** - AI-powered trading assistant with a Wall Street personality
+- **Hype Scores** - Composite sentiment scores (0-100) combining StockTwits buzz and news sentiment
+- **Trending Tickers** - See what's hot based on social media activity
+- **"What's the Move Today"** - Get personalized daily trade recommendations:
+  - Best Bet (solid momentum plays)
+  - Defensive Play (lower risk income strategies)
+  - Degen Play (high risk/reward momentum trades)
+  - Donk of the Day (humorous non-stock "investment" suggestions)
+- **Options Guidance** - AI-estimated strike prices and expiration suggestions
+- **Real-time Sentiment** - Bullish/bearish percentages and momentum indicators
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **AI**: Google Gemini 2.5 Flash
+- **Styling**: Tailwind CSS
+- **Data Sources**: StockTwits API, Alpha Vantage News API
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- npm or yarn
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+STOCKTWITS_API_KEY=your_stocktwits_key  # optional
+ALPHA_VANTAGE_API_KEY=your_alphavantage_key  # optional
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3001](http://localhost:3001) to start chatting with Joel.
 
-## Learn More
+## API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/chat` | POST | Chat with Joel |
+| `/api/hype/[ticker]` | GET | Get hype score for a ticker |
+| `/api/trending` | GET | Get trending tickers |
+| `/api/daily-moves` | GET/POST | Get daily trade recommendations |
+| `/api/suggest` | GET | Get a position suggestion |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This project auto-deploys to Vercel on push to `main`. To deploy manually:
 
-## Deploy on Vercel
+```bash
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Or connect the GitHub repo to [Vercel](https://vercel.com) for automatic deployments.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Disclaimer
+
+Joel provides sentiment-based analysis for entertainment purposes only. This is not financial advice. Social media hype does not guarantee price movement. Always do your own due diligence and consider consulting a licensed financial advisor before making any investment decisions.
+
+## License
+
+MIT
