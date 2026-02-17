@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -38,7 +39,7 @@ export function ChatMessage({ role, content, isLoading, isRateLimited }: ChatMes
           </div>
         )}
         <div
-          className={`text-sm leading-relaxed whitespace-pre-wrap ${
+          className={`text-sm leading-relaxed ${
             isJoel ? "text-gray-200" : "text-dark-900"
           }`}
         >
@@ -61,6 +62,20 @@ export function ChatMessage({ role, content, isLoading, isRateLimited }: ChatMes
               </svg>
               <span>Waiting on more AI credits. Give me a moment...</span>
             </div>
+          ) : isJoel ? (
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold text-gold-400">{children}</strong>,
+                em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                ol: ({ children }) => <ol className="list-decimal list-inside space-y-2 mb-3">{children}</ol>,
+                ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3">{children}</ul>,
+                li: ({ children }) => <li className="ml-2">{children}</li>,
+                code: ({ children }) => <code className="bg-dark-700 px-1 py-0.5 rounded text-gold-300 font-mono text-xs">{children}</code>,
+              }}
+            >
+              {content}
+            </ReactMarkdown>
           ) : (
             content
           )}
