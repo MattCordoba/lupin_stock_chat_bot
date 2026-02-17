@@ -23,11 +23,11 @@ export function setCache<T>(key: string, data: T, ttlSeconds: number): void {
 
 export function clearCache(keyPrefix?: string): void {
   if (keyPrefix) {
-    for (const key of cache.keys()) {
+    Array.from(cache.keys()).forEach((key) => {
       if (key.startsWith(keyPrefix)) {
         cache.delete(key);
       }
-    }
+    });
   } else {
     cache.clear();
   }
