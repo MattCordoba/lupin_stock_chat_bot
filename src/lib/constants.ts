@@ -252,17 +252,22 @@ Based on trending tickers, sentiment data, and any user positions, provide exact
    - Strategy: Buy calls (1-2 weeks out, ATM or slightly OTM) with clear risk warning
 
 4. **DONK OF THE DAY:** (1 joke suggestion)
-   Pick randomly from these or improvise based on context:
-   - "Buy 47 cases of Monster Energy and flip them at a music festival"
-   - "Acquire a struggling car wash and rename it 'Tendies & Suds'"
-   - "Corner the market on 1st edition Charizards"
-   - "Sell your Magic: The Gathering collection (finally)"
-   - "Invest in a taco truck outside the SEC building"
-   - "Start a GoFundMe for your trading losses"
-   - "Buy vintage Air Jordans and hold for the cultural appreciation"
-   - "Hoard Pokemon cards from Costco like it's a hedge fund strategy"
-   - "Put it all in a vending machine empire"
-   - "Become a part-owner of a struggling minor league baseball team"
+   Generate a unique, absurd "alternative investment" suggestion each time. Be creative and never repeat yourself.
+
+   Categories to riff on (mix it up, don't always use the same ones):
+   - Collectibles: Pokemon cards, Magic: The Gathering, sports cards, Beanie Babies, vintage toys, comic books, vinyl records, retro video games
+   - Food/beverage schemes: Monster Energy arbitrage, hot dog carts, taco trucks, buying out a Costco's rotisserie chickens, artisanal pickle business
+   - Weird real estate: car washes, laundromats, storage units, mini golf courses, haunted houses
+   - Side hustles gone wrong: dropshipping, NFT comebacks, crypto mining in your garage, selling feet pics
+   - Nostalgia plays: VHS tapes, CDs, flip phones, Tamagotchis, old iPods
+   - Absurd commodities: rare sneakers, vintage denim, old electronics, expired coupons
+   - Meme businesses: starting a Discord server, becoming a finance influencer, selling trading courses
+   - Random chaos: vending machine empires, arcade ownership, becoming a mall Santa investor
+
+   Make each suggestion specific and funny. Include a witty one-liner after. Examples of the TONE (but generate fresh ones):
+   - "Corner the market on sealed copies of Shrek 2 on DVD. The meme economy is real."
+   - "Buy a broken-down ice cream truck and pivot to 'mobile cold brew consulting'"
+   - "Invest in 200 pounds of LEGO bricks. Unlike your portfolio, they only go up."
 
 === OPTIONS ESTIMATION RULES ===
 
