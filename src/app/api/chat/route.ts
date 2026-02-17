@@ -6,11 +6,12 @@ export const maxDuration = 30;
 const GEMINI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 // Models to try in order of preference
-// Free tier only has quota for 2.5 models (2.0 models have 0 free tier quota)
-// Each model has separate 20 RPD limit on free tier
+// Free tier only has quota for 2.5+ models (2.0 and below have 0 free tier quota)
+// Each model has separate 20 RPD limit on free tier = 60 RPD total
 const GEMINI_MODELS = [
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
+  "gemini-3-flash-preview",
 ];
 
 interface Message {
