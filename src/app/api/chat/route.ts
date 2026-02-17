@@ -7,9 +7,10 @@ const GEMINI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 // Models to try in order of preference
 // Verified available via Google AI API ListModels
+// Using 2.0-flash as primary due to higher rate limits (RPD)
 const GEMINI_MODELS = [
-  "gemini-2.5-flash",
   "gemini-2.0-flash",
+  "gemini-2.5-flash",
   "gemini-2.0-flash-lite",
 ];
 
