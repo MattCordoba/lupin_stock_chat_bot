@@ -6,11 +6,11 @@ export const maxDuration = 30;
 const GEMINI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 // Models to try in order of preference
-// Using correct Google AI model identifiers
+// Verified available via Google AI API ListModels
 const GEMINI_MODELS = [
+  "gemini-2.5-flash",
   "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
+  "gemini-2.0-flash-lite",
 ];
 
 interface Message {
