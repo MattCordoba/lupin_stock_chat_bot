@@ -1,10 +1,80 @@
 // Alpha Vantage API Service
-// News sentiment analysis
+// News sentiment analysis and stock quotes
 
 import { getCached, setCache, CACHE_TTL } from "@/lib/cache";
 import { NewsSentiment, NewsArticle } from "@/lib/types";
 
 const ALPHA_VANTAGE_BASE_URL = "https://www.alphavantage.co/query";
+
+export interface StockQuote {
+  ticker: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  latestTradingDay: string;
+}
+
+/**
+ * Get real-time stock quote from Alpha Vantage
+ */
+export async function getStockQuote(ticker: string): Promise<StockQuote | null> {
+  const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
+  if (!apiKey) {
+    console.error("ALPHA_VANTAGE_API_KEY not set");
+    return null;
+  }
+
+  const cacheKey = `alphavantage:quote:${ticker.toUpperCase()}`;
+  const cached = getCached<StockQuote>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = new URL(ALPHA_VANTAGE_BASE_URL);
+    url.searchParams.set("function", "GLOBAL_QUOTE");
+    url.searchParams.set("symbol", ticker.toUpperCase());
+    url.searchParams.set("apikey", apiKey);
+
+    const response = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 60 }, // 1 minute cache
+    });
+
+    if (!response.ok) {
+      console.error(`Alpha Vantage quote error for ${ticker}: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Check for API limit
+    if (data.Information || data.Note) {
+      console.warn("Alpha Vantage API limit reached:", data.Information || data.Note);
+      return null;
+    }
+
+    const quote = data["Global Quote"];
+    if (!quote || !quote["05. price"]) {
+      console.warn(`No quote data for ${ticker}`);
+      return null;
+    }
+
+    const result: StockQuote = {
+      ticker: ticker.toUpperCase(),
+      price: parseFloat(quote["05. price"]),
+      change: parseFloat(quote["09. change"]),
+      changePercent: parseFloat(quote["10. change percent"]?.replace("%", "") || "0"),
+      volume: parseInt(quote["06. volume"] || "0"),
+      latestTradingDay: quote["07. latest trading day"],
+    };
+
+    setCache(cacheKey, result, 60); // Cache for 1 minute
+    return result;
+  } catch (error) {
+    console.error(`Error fetching quote for ${ticker}:`, error);
+    return null;
+  }
+}
 
 interface AlphaVantageNewsResponse {
   items?: string;

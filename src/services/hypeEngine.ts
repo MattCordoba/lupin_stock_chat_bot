@@ -11,6 +11,7 @@ import {
 import {
   getNewsSentiment,
   calculateNewsScore,
+  getStockQuote,
 } from "./alphaVantage";
 
 // Store previous scores for momentum calculation
@@ -124,9 +125,10 @@ export async function getHypeScore(
   if (cached) return cached;
 
   // Fetch data from all sources in parallel
-  const [stocktwitsSentiment, newsSentiment] = await Promise.all([
+  const [stocktwitsSentiment, newsSentiment, stockQuote] = await Promise.all([
     getStockTwitsSentiment(ticker),
     getNewsSentiment(ticker),
+    getStockQuote(ticker),
   ]);
 
   // Calculate component scores
@@ -180,6 +182,9 @@ export async function getHypeScore(
       neutral: 0, // We don't track neutral separately for now
     },
     momentum,
+    currentPrice: stockQuote?.price,
+    priceChange: stockQuote?.change,
+    priceChangePercent: stockQuote?.changePercent,
     summary,
     lastUpdated: new Date().toISOString(),
   };
