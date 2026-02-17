@@ -1,9 +1,14 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { ChatMessage } from "@/components/ChatMessage";
-import { useState } from "react";
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
 
 const quickPrompts = [
   { label: "What's hot?", prompt: "What are the most hyped stocks right now?" },
@@ -23,15 +28,90 @@ const quickPrompts = [
 ];
 
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/chat",
-    });
-
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showQuickPrompts, setShowQuickPrompts] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setShowQuickPrompts(false);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No reader");
+
+      const decoder = new TextDecoder();
+      let assistantContent = "";
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "",
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        assistantContent += chunk;
+
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessage.id
+              ? { ...m, content: assistantContent }
+              : m
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "Sorry, I had trouble processing that. Give me a second and try again.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleQuickPrompt = (prompt: string) => {
-    handleInputChange({ target: { value: prompt } } as React.ChangeEvent<HTMLInputElement>);
+    setInput(prompt);
     setShowQuickPrompts(false);
   };
 
@@ -75,13 +155,14 @@ export default function ChatPage() {
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
-              role={message.role as "user" | "assistant"}
+              role={message.role}
               content={message.content}
             />
           ))}
-          {isLoading && (
+          {isLoading && messages[messages.length - 1]?.role === "user" && (
             <ChatMessage role="assistant" content="" isLoading={true} />
           )}
+          <div ref={messagesEndRef} />
         </div>
       </main>
 
@@ -92,7 +173,7 @@ export default function ChatPage() {
             <input
               type="text"
               value={input}
-              onChange={handleInputChange}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="Ask Joel about a stock..."
               className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors"
               disabled={isLoading}
