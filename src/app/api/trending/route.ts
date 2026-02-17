@@ -5,11 +5,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "10");
-    const source = searchParams.get("source") || "all";
 
     const trending = await getTrendingTickers(
-      Math.min(Math.max(limit, 1), 50),
-      source
+      Math.min(Math.max(limit, 1), 50)
     );
 
     return NextResponse.json({
