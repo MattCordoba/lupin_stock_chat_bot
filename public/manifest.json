@@ -1,0 +1,27 @@
+{
+  "name": "Joel the HypeTrader",
+  "short_name": "HypeTrader",
+  "description": "Sentiment-driven trading assistant powered by AI. Built by Lupin.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f11",
+  "theme_color": "#c69548",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/lupin-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lupin-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "business"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
